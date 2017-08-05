@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug  1 04:14:51 2017
+Created on Sat Aug  5 15:13:20 2017
 
 @author: DELL PM
 """
@@ -15,15 +15,8 @@ import itertools
 import string
 import traceback
 
-class OSPermissionError(Exception):
-    pass
 
-
-class OSFileNotFoundError(Exception):
-    pass
-
-
-class to_readable_pdf(object):
+class pdf(object):
     def __init__(self, input_path):
         self.input_path = input_path
         
@@ -74,12 +67,15 @@ class to_readable_pdf(object):
 
                     return None
 
-    def readpdf(self):
+    def transform(self):
         try:
  
             inpath = self.input_path
-            path = PurePath(inpath)
             cwd = os.getcwd()
+            if inpath=='':
+                inpath=cwd
+            path = PurePath(inpath)
+            
             if path.suffix != '':
 
                 if path.suffix != '.pdf':
@@ -87,17 +83,18 @@ class to_readable_pdf(object):
                     raise ValueError("The input file is not a pdf file")
 
                 else:
+                    if '\\' not in str(path):
 
-                    l = [str(path)]
-                    
+                               l = [cwd+'\\'+str(path)]
+                    else:
+                               l = [str(path)]
 
             else:
 
-                if str(path) != cwd:
+                if str(path) != cwd :
 
                     l = [str(PurePath(file)) for file in glob.glob(inpath + "/*.pdf")]
-                    
-
+          
                 else:
 
                     l = [file for file in glob.glob("*.pdf")]
@@ -106,46 +103,58 @@ class to_readable_pdf(object):
                     raise ValueError("No pdf files in this directory")
 
             if os.name == 'nt':
-                if self.which_win('gswin64c.exe') is not None:
-                    dirg = str(PurePath(self.which_win('gswin64c.exe')))
-                    
-                elif self.which_win('gswin32c.exe') is not None:
-                    dirg = str(PurePath(self.which_win('gswin64c.exe')))
+                if self.is_exe(str(PurePath(glob.glob('C:/Program Files/gs/gs*/bin/gswin64c.exe')[0]))):
+                    dirg=str(PurePath(glob.glob('C:/Program Files/gs/gs*/bin/gswin64c.exe')[0]))
+                elif self.is_exe(str(PurePath(glob.glob('C:/Program Files/gs/gs*/bin/gswin32c.exe')[0]))):
+                    dirg=str(PurePath(glob.glob('C:/Program Files/gs/gs*/bin/gswin32c.exe')[0]))
                 else:
-                    dis_seg=list(string.ascii_lowercase)
-                    segs=[]
-                    for l in dis_seg:
-                        k=glob.glob(l+":\\")
-                        segs+=k
-                    for seg in segs:
-                        for r,d,f in os.walk(seg):
-                            for files in f:
-                                if files == "gswin64c.exe" or files == "gswin32c.exe":
-                                     if self.is_exe(os.path.join(r,files)):
-                                                     dirg=os.path.join(r,files)
-                    dirg = str(PurePath(dirg))
-                    if dirg is None:
+                    if self.which_win('gswin64c.exe') is not None:
+                        dirg = str(PurePath(self.which_win('gswin64c.exe')))
+                        
+                    elif self.which_win('gswin32c.exe') is not None:
+                        dirg = str(PurePath(self.which_win('gswin64c.exe')))
+                    else:
+                        dis_seg=list(string.ascii_lowercase)
+                        segs=[]
+                        for l in dis_seg:
+                            k=glob.glob(l+":\\")
+                            segs+=k
+                        for seg in segs:
+                            for r,d,f in os.walk(seg):
+                                for files in f:
+                                    if files == "gswin64c.exe" or files == "gswin32c.exe":
+                                         if self.is_exe(os.path.join(r,files)):
+                                                         dirg=str(PurePath(os.path.join(r,files)))
+                
+                if dirg is None:
                         sys.exit("Please install Ghostscript, if you want to complete this task")
-
-                if self.which_win('tesseract.exe') is not None:
-                    dirt = str(PurePath(self.which_win('tesseract.exe')))
+                
+                if self.is_exe(str(PurePath('C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'))):
+                    dirt=str(PurePath('C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'))
+                
+                elif self.is_exe(str(PurePath('C:/Program Files/Tesseract-OCR/tesseract.exe'))):
+                    dirt=str(PurePath('C:/Program Files/Tesseract-OCR/tesseract.exe'))
                     
-               
                 else:
-                    dis_seg=list(string.ascii_lowercase)
-                    segs=[]
-                    for l in dis_seg:
-                        k=glob.glob(l+":\\")
-                        segs+=k
-                    for seg in segs:
-                        for r,d,f in os.walk(seg):
-                            for files in f:
-                                if files == "tesseract.exe" :
-                                    if self.is_exe(os.path.join(r,files)):
-                                          dirt=os.path.join(r,files)
-                    dirt = str(PurePath(dirt))
-                    if dirt is None: 
-                        sys.exit("Please install Tesseract-OCR, if you want to complete this task")
+                    if self.which_win('tesseract.exe') is not None:
+                        dirt = str(PurePath(self.which_win('tesseract.exe')))
+                        
+                   
+                    else:
+                        dis_seg=list(string.ascii_lowercase)
+                        segs=[]
+                        for l in dis_seg:
+                            k=glob.glob(l+":\\")
+                            segs+=k
+                        for seg in segs:
+                            for r,d,f in os.walk(seg):
+                                for files in f:
+                                    if files == "tesseract.exe" :
+                                        if self.is_exe(os.path.join(r,files)):
+                                              dirt=str(PurePath(os.path.join(r,files)))
+                    
+                if dirt is None: 
+                            sys.exit("Please install Tesseract-OCR, if you want to complete this task")
                
                 for inp in l:
                      si = subprocess.STARTUPINFO()
@@ -198,27 +207,36 @@ class to_readable_pdf(object):
                 if os.path.isfile(PurePath("/usr/local/bin/gs")):
                     dirg = str(PurePath("/usr/local/bin/gs"))
                 else:
-                   for r,d,f in os.walk('/'):  
-                      for files in f:
-                         if files == 'gs':
-                             if self.is_exe(os.path.join(r,files)):
-                                          dirg=os.path.join(r,files)
-                   if dirg is None:
+                   for r,d,f in os.walk('/usr'):  
+                           for files in f:
+                               if files == 'gs':
+                                 if self.is_exe(os.path.join(r,files)):
+                                              dirg=os.path.join(r,files)
+                   if dirg is None:                           
+                       for r,d,f in os.walk('/'):  
+                          for files in f:
+                             if files == 'gs':
+                                 if self.is_exe(os.path.join(r,files)):
+                                              dirg=os.path.join(r,files)
+                if dirg is None:
                         sys.exit("Please install Ghostscript, if you want to complete this task")
                         
-                for r,d,f in os.walk('/usr'):  
-                       for files in f:
-                           if files == 'tesseract':
-                             if self.is_exe(os.path.join(r,files)):
-                                          dirt=os.path.join(r,files)
-                if dirt is None:    
-                   for r,d,f in os.walk('/'):  
-                       for files in f:
-                           if files == 'tesseract':
-                             if self.is_exe(os.path.join(r,files)):
-                                          dirt=os.path.join(r,files)
+                if os.path.isfile(PurePath("/usr/local/bin/tesseract")):
+                    dirt = str(PurePath("/usr/local/bin/tesseract"))
+                else:    
+                    for r,d,f in os.walk('/usr'):  
+                           for files in f:
+                               if files == 'tesseract':
+                                 if self.is_exe(os.path.join(r,files)):
+                                              dirt=os.path.join(r,files)
+                    if dirt is None:    
+                       for r,d,f in os.walk('/'):  
+                           for files in f:
+                               if files == 'tesseract':
+                                 if self.is_exe(os.path.join(r,files)):
+                                              dirt=os.path.join(r,files)
                 if dirt is None:
-                        sys.exit("Please install Tesseract, if you want to complete this task")
+                            sys.exit("Please install Tesseract, if you want to complete this task")
                         
                         
                 for inp in l:
@@ -271,12 +289,15 @@ class to_readable_pdf(object):
         except OSError as error:
 
             if error.errno == errno.ENOENT:
-                raise OSFileNotFoundError()
+                raise FileNotFoundError()
 
             elif error.errno in [errno.EPERM, errno.EACCES]:
-                raise OSPermissionError()
+                raise PermissionError()
                 
             else:
                 raise
 
         return "1"
+
+
+ 
