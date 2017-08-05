@@ -13,6 +13,6 @@ setup(
      description = 'converts non-searchable pdf files to searchable ones',
      author = 'marpapad',
      author_email='marypapadaki13@gmail.com',
-     url='https://github.com/marpapad/marpapadrep.git',
-     download_url = 'https://github.com/marpapad/marpapadrep/archive/0.1.tar.gz',
+     url='https://github.com/marpapad/searchpdf.git',
+     download_url = 'https://github.com/marpapad/searchpdf/archive/0.1.tar.gz',
      scripts=['searchpdf.py'] )  
