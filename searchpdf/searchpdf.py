@@ -5,13 +5,6 @@ Created on Tue Sep  5 00:43:53 2017
 @author: DELL PM
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 22 19:53:58 2017
-
-@author: DELL PM
-"""
-
 import os
 
 import errno
