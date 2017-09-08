@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        searchpdf=searchpdf:main
+    
